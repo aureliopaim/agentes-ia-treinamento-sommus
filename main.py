@@ -6,10 +6,22 @@ import os
 
 load_dotenv()
 
-
 logging.basicConfig(level=logging.INFO, format="%(message)s", force=True)
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
+
+#-------- Hooks --------#
+
+class TerminalHooks(RunHooks):
+    async def on_agent_start(self, context, agent):
+        logging.info(f"[Agente] {agent.name}")
+
+    async def on_handoff(self, context, from_agent, to_agent):
+        logging.info(f"[Handoff] {from_agent.name} -> {to_agent.name}")
+
+    async def on_agent_end(self, context, agent, output):
+        logging.info(f"[Agente] {agent.name} finalizou")
+        
 
 #-------- Tools --------#
 
@@ -37,19 +49,6 @@ def consultar_catagoria() -> list[str]:
     cursor.close()
     conn.close()
     return categorias
-
-
-#-------- Hooks --------#
-
-class TerminalHooks(RunHooks):
-    async def on_agent_start(self, context, agent):
-        logging.info(f"[Agente] {agent.name}")
-
-    async def on_handoff(self, context, from_agent, to_agent):
-        logging.info(f"[Handoff] {from_agent.name} -> {to_agent.name}")
-
-    async def on_agent_end(self, context, agent, output):
-        logging.info(f"[Agente] {agent.name} finalizou")
 
 
 #-------- Agentes --------#
@@ -115,4 +114,3 @@ result = Runner.run_sync(
 )
 
 print(result.final_output)
-
